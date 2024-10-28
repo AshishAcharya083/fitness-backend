@@ -25,8 +25,7 @@ async function callGpt(): Promise<string> {
 
   // Print text as it comes in.
   for await (const chunk of result.stream) {
-    chunkText = chunk.text();
-    console.log(chunkText);
+    chunkText = chunkText + chunk.text();
   }
 
   return chunkText;
