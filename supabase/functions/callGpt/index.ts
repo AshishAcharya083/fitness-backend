@@ -17,35 +17,30 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 const prompt =
   "Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ";
 
-async function callGpt() {
+async function callGpt(): Promise<string> {
   console.log("call GPT called by Ashish");
-  // const image = {
 
-  //   inlineData: {
-  //     data: Buffer.from(fs.readFileSync("cookie.png")).toString("base64"),
-  //     mimeType: "image/png",
-  //   },
-  // };
-
-  // const result = await model.generateContentStream([prompt]);
   const result = await model.generateContentStream(prompt);
+  let chunkText: string = "";
 
   // Print text as it comes in.
   for await (const chunk of result.stream) {
-    const chunkText = chunk.text();
+    chunkText = chunk.text();
     console.log(chunkText);
   }
+
+  return chunkText;
 }
 
-Deno.serve(async (req) => {
-  const { name } = await req.json();
-  const data = {
-    message: `Hello ${name}!`,
-  };
-  await callGpt();
+Deno.serve(async (_) => {
+  // const { name } = await req.json();
+  // const data = {
+  //   message: `Hello ${name}!`,
+  // };
+  const response: string = await callGpt();
 
   return new Response(
-    JSON.stringify(data),
+    JSON.stringify(response),
     { headers: { "Content-Type": "application/json" } },
   );
 });
