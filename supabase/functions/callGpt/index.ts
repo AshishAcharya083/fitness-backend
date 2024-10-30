@@ -3,6 +3,7 @@
 
 // Setup type definitions for built-in Supabase Runtime APIs
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
+import { Readable } from "https://esm.sh/v135/openai@4.53.2/_shims/auto/types.d.ts";
 import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
 // import { GoogleGenerativeAi } from "https://esm.sh/@google/generative-ai"
 
@@ -15,22 +16,27 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-// const prompt =
-//   " answer in 100 words only:  Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ";
+const prompt =
+  " answer in 100 words only:  Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ";
 
-const prompt = "Where is mount everest";
+// const prompt = "Where is mount everest";
 
 async function callGpt() {
   console.log("call GPT called by Ashish");
 
   const result = await model.generateContentStream(prompt);
 
+  let timerId: number | undefined;
+
   const responseStream = new ReadableStream({
     async start(controller) {
       try {
         for await (const chunk of result.stream) {
-          console.log(`The chunk text is ${chunk.text()}`);
-          controller.enqueue(new TextEncoder().encode(chunk.text()));
+          const text = chunk.text();
+
+          console.log(`${chunk.text()}`);
+
+          await controller.enqueue(new TextEncoder().encode(text));
         }
         controller.close();
       } catch (error) {
@@ -38,17 +44,13 @@ async function callGpt() {
         controller.error(error);
       }
     },
+
+    cancel() {
+      if (typeof timerId === "number") {
+        clearInterval(timerId);
+      }
+    },
   });
-
-  // responseStream.pipeThrough(
-  //   new TransformStream({
-  //     transform: (chunk, controller) => {
-  //       console.log(`The chunk text is ${chunk}`);
-  //     },
-  //   }),
-  // );
-
-  console.log(`the response stream is ${responseStream}`);
 
   return new Response(responseStream, {
     headers: {
