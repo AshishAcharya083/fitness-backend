@@ -15,21 +15,22 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-const prompt =
-  " answer in 100 words only:  Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ";
+// const prompt =
+//   " answer in 100 words only:  Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ";
+
+const prompt = "Where is mount everest";
 
 async function callGpt() {
   console.log("call GPT called by Ashish");
 
   const result = await model.generateContentStream(prompt);
 
-  const responseStream = new ReadableStream<string>({
+  const responseStream = new ReadableStream({
     async start(controller) {
       try {
         for await (const chunk of result.stream) {
-          const text = chunk.text();
-          console.log(`The chunk text is: "${text}"`);
-          controller.enqueue(text);
+          console.log(`The chunk text is ${chunk.text()}`);
+          controller.enqueue(new TextEncoder().encode(chunk.text()));
         }
         controller.close();
       } catch (error) {
