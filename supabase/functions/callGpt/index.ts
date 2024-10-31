@@ -9,7 +9,6 @@ import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
 
 import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 import type { ErrorEntity } from "../../entities/error_entity.ts";
-import { delay } from "../../utils/delay_utils.ts";
 
 console.log("Hello from Functions!");
 
@@ -38,11 +37,12 @@ async function callGpt() {
             console.log(`is stream completed ${result.stream.next()}`);
             const text = chunk.text();
 
-            // console.log(`${chunk.text()}`);
+            console.log(`${chunk.text()}`);
 
             await controller.enqueue(new TextEncoder().encode(text));
           }
-          await delay(1000);
+          // await delay(1000);
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           controller.close();
         } catch (error) {
           console.log(`The ERROR is ${error}`);
