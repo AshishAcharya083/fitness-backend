@@ -9,18 +9,19 @@ import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
 
 import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 import type { ErrorEntity } from "../../entities/error_entity.ts";
+import { delay } from "../../utils/delay_utils.ts";
 
 console.log("Hello from Functions!");
 
 const apiKey = "AIzaSyDwa4KyRor7GI1EWMk1Pb8mH0xl1TQImak";
 const genAI = new GoogleGenerativeAI(apiKey);
 
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-002" });
 
-// const prompt =
-//   " answer in 100 words only:  Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ";
+const prompt =
+  "Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ";
 
-const prompt = "Where is mount everest";
+// const prompt = "Where is mount everest";
 
 async function callGpt() {
   console.log("call GPT called by Ashish");
@@ -30,8 +31,6 @@ async function callGpt() {
 
     console.log(`"The response is ${result.stream}`);
 
-    let timerId: number | undefined;
-
     const responseStream = new ReadableStream({
       async start(controller) {
         try {
@@ -39,10 +38,11 @@ async function callGpt() {
             console.log(`is stream completed ${result.stream.next()}`);
             const text = chunk.text();
 
-            console.log(`${chunk.text()}`);
+            // console.log(`${chunk.text()}`);
 
             await controller.enqueue(new TextEncoder().encode(text));
           }
+          await delay(1000);
           controller.close();
         } catch (error) {
           console.log(`The ERROR is ${error}`);
