@@ -9,6 +9,8 @@ import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
 
 import { GoogleGenerativeAI } from "npm:@google/generative-ai";
 import type { ErrorEntity } from "../../entities/error_entity.ts";
+// import { delay } from "../../utils/delay_utils.ts";
+// import { delay } from "delay_utils";
 
 console.log("Hello from Functions!");
 
