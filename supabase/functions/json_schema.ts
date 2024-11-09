@@ -1,19 +1,23 @@
-class JsonSchema {
-    static fullBodyAnalysis = {
-        "type": "array",
-        "items": {
-            "type": "object",
-            "properties": {
-                "title": {
-                    "type": "string",
-                    "description":
-                        "Suitable title for description below with emoji at the end",
+import { SchemaType } from "npm:@google/generative-ai";
+
+export default class JsonSchema {
+    static workoutRoutineSchema = {
+        type: SchemaType.ARRAY,
+        description: "List of objects with title and description",
+        items: {
+            type: SchemaType.OBJECT,
+            properties: {
+                title: {
+                    type: SchemaType.STRING,
+                    description:
+                        "Title ending with suitable emoji (emoji as suffix) if available. Do not repeat emoji if it's already in previous title.",
                 },
-                "description": {
-                    "type": "string",
-                    "description": "plain text in simple language",
+                description: {
+                    type: SchemaType.STRING,
+                    description: "The description of the item",
                 },
             },
+            required: ["title", "description"],
         },
     };
 }

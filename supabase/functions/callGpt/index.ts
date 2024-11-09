@@ -1,14 +1,16 @@
-// https://deno.land/manual/getting_started/setup_your_environment
-// This enables autocomplete, go to definition, etc.
-
 // Setup type definitions for built-in Supabase Runtime APIs
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
 import { Readable } from "https://esm.sh/v135/openai@4.53.2/_shims/auto/types.d.ts";
 import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
 // import { GoogleGenerativeAi } from "https://esm.sh/@google/generative-ai"
 
-import { GoogleGenerativeAI } from "npm:@google/generative-ai";
+import {
+  type GenerationConfig,
+  GoogleGenerativeAI,
+  type ResponseSchema,
+} from "npm:@google/generative-ai";
 import type { ErrorEntity } from "../../entities/error_entity.ts";
+import JsonSchema from "../json_schema.ts";
 // import { delay } from "../../utils/delay_utils.ts";
 // import type { delay } from "delay_utils";
 
@@ -17,10 +19,15 @@ console.log("Hello from Functions!");
 const apiKey = "AIzaSyDwa4KyRor7GI1EWMk1Pb8mH0xl1TQImak";
 const genAI = new GoogleGenerativeAI(apiKey);
 
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-002" });
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash-002",
+  generationConfig: {
+    responseSchema: JsonSchema.workoutRoutineSchema,
+  },
+});
 
 const prompt =
-  "Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ";
+  "Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time . Respond in list of json format with title and descirption in it. like [{'title':'title value' , 'description': 'description value'}] ";
 
 // const prompt = "Where is mount everest";
 
