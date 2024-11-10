@@ -4,6 +4,9 @@ import { Readable } from "https://esm.sh/v135/openai@4.53.2/_shims/auto/types.d.
 import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
 import type { ErrorEntity } from "../../entities/error_entity.ts";
 import model from "./gemini/model_config.ts";
+import getSupabaseClient from "./data/supabase_client.ts";
+import UserRepository from "./data/user_repository.ts";
+import getTokenFromRequest from "../utils.ts";
 
 console.log("Hello from Functions!");
 
@@ -46,8 +49,24 @@ async function callGpt() {
   }
 }
 
-Deno.serve((_) => {
-  return callGpt();
+Deno.serve(async (req: Request) => {
+  const supabaseClient = getSupabaseClient(req);
+  console.log("supabase client got successfully");
+
+  const token: string = getTokenFromRequest(req);
+  const userRepo: UserRepository = new UserRepository(token, supabaseClient);
+  const user = await userRepo.getUser();
+  console.log(`The user name is ${user?.email}`);
+
+  return new Response("This is the response from supabase", {
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      "Access-Control-Allow-Origin": "*",
+    },
+  });
+  // return callGpt();
 });
 
 /* To invoke locally:
