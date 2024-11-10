@@ -7,10 +7,9 @@ import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
 import {
   type GenerationConfig,
   GoogleGenerativeAI,
-  type ResponseSchema,
 } from "npm:@google/generative-ai";
 import type { ErrorEntity } from "../../entities/error_entity.ts";
-import JsonSchema from "../json_schema.ts";
+import JsonSchema from "./json_schema.ts";
 // import { delay } from "../../utils/delay_utils.ts";
 // import type { delay } from "delay_utils";
 
@@ -18,54 +17,33 @@ console.log("Hello from Functions!");
 
 const apiKey = "AIzaSyDwa4KyRor7GI1EWMk1Pb8mH0xl1TQImak";
 const genAI = new GoogleGenerativeAI(apiKey);
+const geminiProModel: string = "gemini-1.5-pro";
+const geminiFlashModel: string = "gemini-1.5-flash-002";
 
 const model = genAI.getGenerativeModel({
-  model: "gemini-1.5-flash-002",
+  model: geminiFlashModel,
   generationConfig: {
+    responseMimeType: "application/json",
     responseSchema: JsonSchema.workoutRoutineSchema,
   },
 });
 
+const formatString: string =
+  " Provide response in third person, The response will be read by Ashish. You're trainer to him. Respond in JSON: format with title and description. Title should have a matching emoji at the end if possible. and do not include the duplicate emoji if it is already in the title. The description should be a detailed explanation of the title. The response should be a list of objects with title and description. No other format is accepted. provide the proper brackets for parsing JSON. Do not provide any markdown or HTML formatting or '**'. provide in format: [{'title': 'title', 'description': 'description'}, {'title': 'title', 'description': 'description'}]";
 const prompt =
-  "Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time . Respond in list of json format with title and descirption in it. like [{'title':'title value' , 'description': 'description value'}] ";
-
-// const prompt = "Where is mount everest";
+  `Create a 7-day workout plan for a 25-year-old male named Ashish, who lives in Melbourne. Ashish’s goal is to gain 10 kg of weight, focusing on muscle mass. He is a beginner in weight training but has a basic level of fitness. The plan should include a mix of strength training and compound exercises, targeting different muscle groups. Additionally, provide guidance on rest and recovery, and include any specific nutritional tips to support his goal of healthy weight gain. Include details on sets, reps, and progression over time ${formatString}.`;
 
 async function callGpt() {
   console.log("call GPT called by Ashish");
 
   try {
-    const result = await model.generateContentStream(prompt);
+    const result = await model.generateContent(prompt);
 
-    console.log(`"The response is ${result.stream}`);
+    const response = result.response.text();
 
-    const responseStream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of result.stream) {
-            console.log(`is stream completed ${result.stream.next()}`);
-            const text = chunk.text();
-
-            console.log(`${chunk.text()}`);
-
-            await controller.enqueue(new TextEncoder().encode(text));
-          }
-          // await delay(1000);
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          controller.close();
-        } catch (error) {
-          console.log(`The ERROR is ${error}`);
-          controller.error(error);
-        }
-      },
-      cancel() {
-        console.log("Stream cancelled");
-      },
-    });
-
-    return new Response(responseStream, {
+    return new Response(response, {
       headers: {
-        "Content-Type": "text/event-stream",
+        "Content-Type": "application/json",
         "Cache-Control": "no-cache",
         Connection: "keep-alive",
         "Access-Control-Allow-Origin": "*",

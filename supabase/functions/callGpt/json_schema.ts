@@ -16,8 +16,12 @@ export default class JsonSchema {
                     type: SchemaType.STRING,
                     description: "The description of the item",
                 },
+                weekday: {
+                    type: SchemaType.STRING,
+                    description: "week day name of week",
+                },
             },
-            required: ["title", "description"],
+            required: ["title", "description", "weekday"],
         },
     };
 }
