@@ -2,31 +2,10 @@
 import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
 import { Readable } from "https://esm.sh/v135/openai@4.53.2/_shims/auto/types.d.ts";
 import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
-// import { GoogleGenerativeAi } from "https://esm.sh/@google/generative-ai"
-
-import {
-  type GenerationConfig,
-  GoogleGenerativeAI,
-} from "npm:@google/generative-ai";
 import type { ErrorEntity } from "../../entities/error_entity.ts";
-import JsonSchema from "./json_schema.ts";
-// import { delay } from "../../utils/delay_utils.ts";
-// import type { delay } from "delay_utils";
+import model from "./gemini/model_config.ts";
 
 console.log("Hello from Functions!");
-
-const apiKey = "AIzaSyDwa4KyRor7GI1EWMk1Pb8mH0xl1TQImak";
-const genAI = new GoogleGenerativeAI(apiKey);
-const geminiProModel: string = "gemini-1.5-pro";
-const geminiFlashModel: string = "gemini-1.5-flash-002";
-
-const model = genAI.getGenerativeModel({
-  model: geminiFlashModel,
-  generationConfig: {
-    responseMimeType: "application/json",
-    responseSchema: JsonSchema.workoutRoutineSchema,
-  },
-});
 
 const formatString: string =
   " Provide response in third person, The response will be read by Ashish. You're trainer to him. Respond in JSON: format with title and description. Title should have a matching emoji at the end if possible. and do not include the duplicate emoji if it is already in the title. The description should be a detailed explanation of the title. The response should be a list of objects with title and description. No other format is accepted. provide the proper brackets for parsing JSON. Do not provide any markdown or HTML formatting or '**'. provide in format: [{'title': 'title', 'description': 'description'}, {'title': 'title', 'description': 'description'}]";
