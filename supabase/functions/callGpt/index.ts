@@ -1,6 +1,6 @@
 // Setup type definitions for built-in Supabase Runtime APIs
-import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
-import { Readable } from "https://esm.sh/v135/openai@4.53.2/_shims/auto/types.d.ts";
+// import "https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts";
+// import { Readable } from "https://esm.sh/v135/openai@4.53.2/_shims/auto/types.d.ts";
 import { _decodeChunks } from "https://esm.sh/v135/openai@4.53.2/streaming.js";
 import type { ErrorEntity } from "../../entities/error_entity.ts";
 import model from "./gemini/model_config.ts";
@@ -57,8 +57,11 @@ Deno.serve(async (req: Request) => {
   const userRepo: UserRepository = new UserRepository(token, supabaseClient);
   const user = await userRepo.getUser();
   console.log(`The user name is ${user?.email}`);
+  const response = await callGpt();
 
-  return new Response("This is the response from supabase", {
+  const responseDataText = await response.text();
+
+  return new Response(responseDataText, {
     headers: {
       "Content-Type": "application/json",
       "Cache-Control": "no-cache",
