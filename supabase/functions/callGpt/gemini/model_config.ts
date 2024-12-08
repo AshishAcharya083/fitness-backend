@@ -4,7 +4,9 @@ import JsonSchema from "../json_schema.ts";
 
 const apiKey = "AIzaSyDwa4KyRor7GI1EWMk1Pb8mH0xl1TQImak";
 
-const genAI = new GoogleGenerativeAI(apiKey);
+const apiKeyPaid = "AIzaSyAHuh_ytUiBfkUw3scZe4wQKiknUlN5bes";
+
+const genAI = new GoogleGenerativeAI(apiKeyPaid);
 
 const model = genAI.getGenerativeModel({
     model: GeminiModel.flash,
